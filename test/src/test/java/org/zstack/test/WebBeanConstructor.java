@@ -5,6 +5,7 @@ import org.apache.catalina.connector.Connector;
 import org.apache.catalina.startup.Tomcat;
 import org.apache.commons.io.FileUtils;
 import org.apache.coyote.http11.Http11NioProtocol;
+import org.eclipse.jetty.server.ServerConnector;
 import org.springframework.web.util.UriComponentsBuilder;
 import org.zstack.appliancevm.ApplianceVmGlobalProperty;
 import org.zstack.core.Platform;
@@ -14,10 +15,14 @@ import org.zstack.kvm.KVMGlobalProperty;
 import org.zstack.network.service.virtualrouter.VirtualRouterGlobalProperty;
 import org.zstack.storage.backup.sftp.SftpBackupStorageGlobalProperty;
 
+import org.eclipse.jetty.server.Server;
+import org.eclipse.jetty.webapp.WebAppContext;
+
 import java.io.File;
 import java.io.IOException;
 
 public class WebBeanConstructor extends BeanConstructor {
+    private Server jetty;
     private Tomcat tomcat;
     private static final String BASE_DIR = "target/test-classes/tomcat";
     private static final String APP_NAME = "zstack";
@@ -47,36 +52,24 @@ public class WebBeanConstructor extends BeanConstructor {
         FileUtils.forceMkdir(dir);
 
         generateWarFile();
-        tomcat = new Tomcat();
-        tomcat.setPort(port);
-        tomcat.setBaseDir(BASE_DIR);
-        tomcat.getHost().setAppBase(BASE_DIR);
-        tomcat.getHost().setAutoDeploy(true);
-        tomcat.getHost().setDeployOnStartup(true);
 
-        final Connector nioConnector = new Connector(Http11NioProtocol.class.getName());
-        nioConnector.setPort(port);
-        nioConnector.setSecure(false);
-        nioConnector.setScheme("http");
-        nioConnector.setProtocol("HTTP/1.1");
-        try {
-            //nioConnector.setProperty("address", InetAddress.getByName("localhost").getHostAddress());
-            nioConnector.setProperty("address", "0.0.0.0");
-        } catch (Exception e) {
-            throw new CloudRuntimeException(e);
-        }
-        tomcat.getService().removeConnector(tomcat.getConnector());
-        tomcat.getService().addConnector(nioConnector);
-        tomcat.setConnector(nioConnector);
-
-        tomcat.addWebapp(tomcat.getHost(), "/", new File(BASE_DIR, APP_NAME + ".war").getAbsolutePath());
-
+        jetty = new Server();
+        ServerConnector http = new ServerConnector(jetty);
+        http.setHost("localhost");
+        http.setPort(port);
+        http.setDefaultProtocol("HTTP/1.1");
+        jetty.addConnector(http);
+        final WebAppContext webapp = new WebAppContext();
+        webapp.setContextPath("/");
+        webapp.setWar(new File(BASE_DIR, APP_NAME + ".war").getAbsolutePath());
+        jetty.setHandler(webapp);
     }
 
     public void startTomcat() {
         try {
             prepareTomcat();
-            tomcat.start();
+            jetty.start();
+         //   jetty.join();
         } catch (Exception e) {
             throw new CloudRuntimeException(e);
         }
@@ -84,13 +77,9 @@ public class WebBeanConstructor extends BeanConstructor {
 
     public void stopTomcat() {
         try {
-            if (tomcat != null && tomcat.getServer() != null && tomcat.getServer().getState() != LifecycleState.DESTROYED) {
-                if (tomcat.getServer().getState() != LifecycleState.STOPPED) {
-                    tomcat.stop();
-                }
-                tomcat.destroy();
-            }
-        } catch (Exception e) {
+            if(jetty != null)
+                jetty.stop();
+        } catch (Exception e){
             throw new CloudRuntimeException(e);
         }
     }

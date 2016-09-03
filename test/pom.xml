@@ -145,6 +145,17 @@
         </dependency>
 
         <dependency>
+            <groupId>org.eclipse.jetty</groupId>
+            <artifactId>jetty-server</artifactId>
+            <version>9.2.9.v20150224</version>
+        </dependency>
+        <dependency>
+            <groupId>org.eclipse.jetty</groupId>
+            <artifactId>jetty-webapp</artifactId>
+            <version>9.2.9.v20150224</version>
+        </dependency>
+
+        <dependency>
             <groupId>org.zstack</groupId>
             <artifactId>kvm</artifactId>
             <version>${project.version}</version>
