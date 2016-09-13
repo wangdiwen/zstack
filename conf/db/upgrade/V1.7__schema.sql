@@ -133,3 +133,10 @@ CREATE TABLE `zstack`.`VCenterClusterVO` (
     `vCenterUuid` varchar(32) NOT NULL COMMENT 'vcenter uuid',
     PRIMARY KEY  (`uuid`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+
+CREATE TABLE `zstack`.`ESXHostVO` (
+    `uuid` varchar(32) NOT NULL UNIQUE COMMENT 'host uuid',
+    `vCenterUuid` varchar(32) NOT NULL COMMENT 'vcenter uuid',
+    `morval` varchar(128) NOT NULL COMMENT 'MOR value',
+    PRIMARY KEY  (`uuid`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;

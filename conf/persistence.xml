@@ -83,6 +83,7 @@
         <class>org.zstack.storage.backup.imagestore.ImageStoreBackupStorageVO</class>
         <class>org.zstack.vmware.VCenterVO</class>
         <class>org.zstack.vmware.VCenterClusterVO</class>
+        <class>org.zstack.vmware.ESXHostVO</class>
         <class>org.zstack.header.simulator.SimulatorHostVO</class>
         <class>org.zstack.header.storage.primary.ImageCacheVO</class>
         <class>org.zstack.network.service.virtualrouter.VirtualRouterOfferingVO</class>
