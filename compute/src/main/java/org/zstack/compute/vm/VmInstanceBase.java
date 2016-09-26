@@ -3652,16 +3652,19 @@ public class VmInstanceBase extends AbstractVmInstance {
         }
         spec.setDestDataVolumes(dataVols);
 
-        ImageVO imgvo = dbf.findByUuid(inv.getImageUuid(), ImageVO.class);
-        ImageInventory imginv = null;
-        if (imgvo == null) {
-            // the image has been deleted, use EO instead
-            ImageEO imgeo = dbf.findByUuid(inv.getImageUuid(), ImageEO.class);
-            imginv = ImageInventory.valueOf(imgeo);
-        } else {
-            imginv = ImageInventory.valueOf(imgvo);
+        if (inv.getImageUuid() != null) {
+            ImageVO imgvo = dbf.findByUuid(inv.getImageUuid(), ImageVO.class);
+            ImageInventory imginv = null;
+            if (imgvo == null) {
+                // the image has been deleted, use EO instead
+                ImageEO imgeo = dbf.findByUuid(inv.getImageUuid(), ImageEO.class);
+                imginv = ImageInventory.valueOf(imgeo);
+            } else {
+                imginv = ImageInventory.valueOf(imgvo);
+            }
+            spec.getImageSpec().setInventory(imginv);
         }
-        spec.getImageSpec().setInventory(imginv);
+
         spec.setVmInventory(inv);
         buildHostname(spec);
 
